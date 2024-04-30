@@ -1,6 +1,8 @@
 import CategoryItem from '@/components/category-item'
+import ProductSection from '@/components/product-section'
 import SearchField from '@/components/search-field'
 import prisma from '@/prisma/prisma-client'
+import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 
 export default async function Home() {
@@ -25,6 +27,7 @@ export default async function Home() {
           objectFit='contain'
         />
       </section>
+      <ProductSection className='mt-4'/>
       <section className='relative w-screen h-[172px] mt-4 p-4'>
         <Image
           src={'/banner2.png'}
