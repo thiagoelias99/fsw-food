@@ -1,6 +1,7 @@
 import CategoryItem from '@/components/category-item'
 import SearchField from '@/components/search-field'
 import prisma from '@/prisma/prisma-client'
+import Image from 'next/image'
 
 export default async function Home() {
   const categories = await prisma.category.findMany()
@@ -15,6 +16,22 @@ export default async function Home() {
             {...category}
           />
         ))}
+      </section>
+      <section className='relative w-screen h-[172px] mt-4 p-4'>
+        <Image
+          src={'/banner1.png'}
+          alt='pizza banner'
+          fill
+          objectFit='contain'
+        />
+      </section>
+      <section className='relative w-screen h-[172px] mt-4 p-4'>
+        <Image
+          src={'/banner2.png'}
+          alt='pizza banner'
+          fill
+          objectFit='contain'
+        />
       </section>
     </main>
   )
