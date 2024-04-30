@@ -1,7 +1,9 @@
+import SearchField from '@/components/search-field'
+
 export default function Home() {
   return (
     <main>
-      <h1>hiii</h1>
+      <SearchField />
     </main>
   )
 }
