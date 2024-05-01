@@ -5,7 +5,7 @@ const nextConfig = {
     defaultLocale: 'pt-BR',
   },
   images:{
-    domains: ['utfs.io']
+    domains: ['utfs.io', 'lh3.googleusercontent.com']
   },
 }
 
