@@ -1,3 +1,5 @@
+import DiscountPercentBadge from '@/components/discount-percent-badge'
+import QuantityInput from '@/components/quantity-input'
 import { formatCurrency } from '@/lib/format-currecy'
 import prisma from '@/prisma/prisma-client'
 import Image from 'next/image'
@@ -45,10 +47,13 @@ export default async function ProductDetailsPage({ params }: Props) {
         <h1 className='text-xl font-semibold mt-2'>{product?.name}</h1>
         <div className='w-full flex justify-between items-center'>
           <div>
-            <p className='text-xl font-semibold'>{formatCurrency(actualPrice)}</p>
+            <div className='flex flex-row justify-start items-center gap-2'>
+              <p className='text-xl font-semibold'>{formatCurrency(actualPrice)}</p>
+              <DiscountPercentBadge discountPercentage={product?.discountPercentage || 0} />
+            </div>
             <p className='text-sm text-muted-foreground line-through'>De: {formatCurrency(Number(product?.price))}</p>
           </div>
-
+          <QuantityInput />
         </div>
       </section>
     </main>
