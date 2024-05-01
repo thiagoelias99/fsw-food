@@ -1,9 +1,9 @@
 import CategoryItem from '@/components/category-item'
+import Header from '@/components/header'
 import ProductSection from '@/components/product-section'
 import RestaurantsSection from '@/components/restaurant-section'
 import SearchField from '@/components/search-field'
 import prisma from '@/prisma/prisma-client'
-import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 
 export default async function Home() {
@@ -11,6 +11,7 @@ export default async function Home() {
 
   return (
     <main className='pb-4'>
+      <Header />
       <SearchField />
       <section className='w-screen px-4 mt-4 flex flex-row justify-start items-center gap-2 overflow-x-scroll [&::-webkit-scrollbar]:hidden'>
         {categories.map((category) => (
