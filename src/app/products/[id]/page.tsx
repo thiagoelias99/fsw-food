@@ -1,7 +1,11 @@
+import BackButton from '@/components/back-button'
 import DiscountPercentBadge from '@/components/discount-percent-badge'
+import ProductItem from '@/components/product-item'
 import QuantityInput from '@/components/quantity-input'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/format-currecy'
 import prisma from '@/prisma/prisma-client'
+import { AlarmClock, BikeIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
@@ -15,11 +19,33 @@ export default async function ProductDetailsPage({ params }: Props) {
   const product = await prisma.product.findUnique({
     where: { id: params.id },
     include: {
-      restaurant: true
+      restaurant: true,
+      category: {
+        select: {
+          name: true
+        }
+      }
+    }
+  })
+
+  const otherProducts = await prisma.product.findMany({
+    where: {
+      categoryId: product?.categoryId,
+      NOT: { id: product?.id },
+      restaurantId: product?.restaurantId
+    },
+    take: 5,
+    include: {
+      restaurant: {
+        select: {
+          name: true
+        }
+      }
     }
   })
 
   const actualPrice = Number(product?.price) * (1 - Number(product?.discountPercentage) / 100)
+  const deliveryFeeFormatted = Number(product?.restaurant.deliveryFee) === 0 ? 'Entrega Grátis' : formatCurrency(Number(product?.restaurant.deliveryFee))
 
   return (
     <main className='flex flex-col'>
@@ -30,9 +56,10 @@ export default async function ProductDetailsPage({ params }: Props) {
           fill
           objectFit='cover'
         />
+        <BackButton className='absolute top-4 left-4' />
       </section>
-      <section className='relative w-full p-4 flex-1 bg-white rounded-t-3xl -top-6'>
-        <div className='flex flex-row justify-start items-center gap-2'>
+      <div className='relative w-full flex-1 bg-white rounded-t-3xl -top-6'>
+        <section className='p-4 flex flex-row justify-start items-center gap-2' >
           <div className='relative w-6 h-6 rounded-full'>
             <Image
               src={product?.restaurant.imageUrl || ''}
@@ -43,19 +70,56 @@ export default async function ProductDetailsPage({ params }: Props) {
             />
           </div>
           <h2 className='text-sx text-muted-foreground' >{product?.restaurant.name}</h2>
-        </div>
-        <h1 className='text-xl font-semibold mt-2'>{product?.name}</h1>
-        <div className='w-full flex justify-between items-center'>
-          <div>
-            <div className='flex flex-row justify-start items-center gap-2'>
-              <p className='text-xl font-semibold'>{formatCurrency(actualPrice)}</p>
-              <DiscountPercentBadge discountPercentage={product?.discountPercentage || 0} />
+        </section>
+        {/* Product Infos */}
+        <section className='px-4'>
+          <h1 className='text-xl font-semibold mt-6'>{product?.name}</h1>
+          <div className='w-full flex justify-between items-center'>
+            <div>
+              <div className='flex flex-row justify-start items-center gap-2'>
+                <p className='text-xl font-semibold'>{formatCurrency(actualPrice)}</p>
+                <DiscountPercentBadge discountPercentage={product?.discountPercentage || 0} />
+              </div>
+              <p className='text-sm text-muted-foreground line-through'>De: {formatCurrency(Number(product?.price))}</p>
             </div>
-            <p className='text-sm text-muted-foreground line-through'>De: {formatCurrency(Number(product?.price))}</p>
+            <QuantityInput />
           </div>
-          <QuantityInput />
+        </section>
+        {/* Delivery Info */}
+        <section className='mx-4 h-14 mt-6 flex flex-row justify-center items-center rounded-md border border-muted'>
+          <div className='w-full h-full flex flex-col justify-center items-center gap-2'>
+            <div className='flex flex-row justify-center items-center gap-1'>
+              <p className='text-xs text-muted-foreground'>Entrega</p>
+              <BikeIcon size={18} className='stroke-muted-foreground' />
+            </div>
+            <p className='text-xs font-semibold'>{deliveryFeeFormatted}</p>
+          </div>
+          <div className='w-full h-full flex flex-col justify-center items-center gap-2'>
+            <div className='flex flex-row justify-center items-center gap-1'>
+              <p className='text-xs text-muted-foreground'>Entrega</p>
+              <AlarmClock size={18} className='stroke-muted-foreground' />
+            </div>
+            <p className='text-xs font-semibold'>{product?.restaurant.deliveryTimeMinutes} min</p>
+          </div>
+        </section>
+        {/* Description */}
+        <section className='px-4 mt-6 flex flex-col justify-start items-start gap-2'>
+          <h3 className='font-semibold'>Sobre</h3>
+          <p className='text-sm text-muted-foreground'>{product?.description}</p>
+        </section>
+        {/* Recommended */}
+        <section className='mt-6 flex flex-col justify-start items-start gap-2'>
+          <h3 className='px-4 font-semibold'>Outros {product?.category.name}</h3>
+          <ul className='w-full px-4 flex flex-row justify-start items-center overflow-x-scroll gap-4 [&::-webkit-scrollbar]:hidden'>
+            {otherProducts.map((product) => (
+              <ProductItem key={product.id} {...product} />
+            ))}
+          </ul>
+        </section>
+        <div className='px-4'>
+          <Button className='w-full'>Adicionar à sacola</Button>
         </div>
-      </section>
+      </div>
     </main>
   )
 }

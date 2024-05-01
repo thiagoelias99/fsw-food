@@ -44,6 +44,7 @@ export default async function ProductSection({ className }: Props) {
         {products.map((product) => (
           <ProductItem
             key={product.id}
+            showRestaurant
             {...product}
           />
         ))}
