@@ -9,6 +9,24 @@ import Image from 'next/image'
 export default async function Home() {
   const categories = await prisma.category.findMany()
 
+  const products = await prisma.product.findMany(
+    {
+      where: {
+        discountPercentage: {
+          gt: 0
+        }
+      },
+      take: 10,
+      include: {
+        restaurant: {
+          select: {
+            name: true
+          }
+        }
+      }
+    }
+  )
+
   return (
     <main className='pb-4'>
       <Header />
@@ -29,7 +47,12 @@ export default async function Home() {
           objectFit='contain'
         />
       </section>
-      <ProductSection className='mt-4'/>
+      <ProductSection
+        sectionTitle='Promoções'
+        className='mt-4'
+        products={products}
+        linkTo='/'
+      />
       <section className='relative w-screen h-[172px] mt-4 p-4'>
         <Image
           src={'/banner2.png'}
@@ -38,7 +61,7 @@ export default async function Home() {
           objectFit='contain'
         />
       </section>
-      <RestaurantsSection className='mt-4'/>
+      <RestaurantsSection className='mt-4' />
     </main>
   )
 }

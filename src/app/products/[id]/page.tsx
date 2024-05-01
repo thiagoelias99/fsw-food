@@ -1,4 +1,5 @@
 import BackButton from '@/components/back-button'
+import DeliveryInfoSection from '@/components/delivery-info-section'
 import DiscountPercentBadge from '@/components/discount-percent-badge'
 import ProductItem from '@/components/product-item'
 import QuantityInput from '@/components/quantity-input'
@@ -45,7 +46,6 @@ export default async function ProductDetailsPage({ params }: Props) {
   })
 
   const actualPrice = Number(product?.price) * (1 - Number(product?.discountPercentage) / 100)
-  const deliveryFeeFormatted = Number(product?.restaurant.deliveryFee) === 0 ? 'Entrega Grátis' : formatCurrency(Number(product?.restaurant.deliveryFee))
 
   return (
     <main className='flex flex-col'>
@@ -87,29 +87,13 @@ export default async function ProductDetailsPage({ params }: Props) {
             <QuantityInput />
           </div>
         </section>
-        {/* Delivery Info */}
-        <section className='mx-4 h-14 mt-6 flex flex-row justify-center items-center rounded-md border border-muted'>
-          <div className='w-full h-full flex flex-col justify-center items-center gap-2'>
-            <div className='flex flex-row justify-center items-center gap-1'>
-              <p className='text-xs text-muted-foreground'>Entrega</p>
-              <BikeIcon size={18} className='stroke-muted-foreground' />
-            </div>
-            <p className='text-xs font-semibold'>{deliveryFeeFormatted}</p>
-          </div>
-          <div className='w-full h-full flex flex-col justify-center items-center gap-2'>
-            <div className='flex flex-row justify-center items-center gap-1'>
-              <p className='text-xs text-muted-foreground'>Entrega</p>
-              <AlarmClock size={18} className='stroke-muted-foreground' />
-            </div>
-            <p className='text-xs font-semibold'>{product?.restaurant.deliveryTimeMinutes} min</p>
-          </div>
-        </section>
+        <DeliveryInfoSection restaurant={product?.restaurant} className='mt-6 mx-4' />
         {/* Description */}
         <section className='px-4 mt-6 flex flex-col justify-start items-start gap-2'>
           <h3 className='font-semibold'>Sobre</h3>
           <p className='text-sm text-muted-foreground'>{product?.description}</p>
         </section>
-        {/* Recommended */}
+        {/* Recommendeds */}
         <section className='mt-6 flex flex-col justify-start items-start gap-2'>
           <h3 className='px-4 font-semibold'>Outros {product?.category.name}</h3>
           <ul className='w-full px-4 flex flex-row justify-start items-center overflow-x-scroll gap-4 [&::-webkit-scrollbar]:hidden'>
