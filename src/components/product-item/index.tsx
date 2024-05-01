@@ -15,7 +15,7 @@ interface Props extends Prisma.ProductGetPayload<{
   }
 }> {
   showRestaurant?: boolean
- }
+}
 
 export default function ProductItem({ id, price, discountPercentage, imageUrl, name, restaurant, showRestaurant = false }: Props) {
   const actualPrice = Number(price) * (1 - Number(discountPercentage) / 100)
@@ -37,7 +37,9 @@ export default function ProductItem({ id, price, discountPercentage, imageUrl, n
           <h3 className='text-sm truncate'>{name}</h3>
           <div className='flex flex-row justify-start items-center gap-2'>
             <p className='text-base font-semibold'>{formatCurrency(actualPrice)}</p>
-            <p className='text-xs text-muted-foreground line-through'>{formatCurrency(Number(price))}</p>
+            {discountPercentage > 0 && (
+              <p className='text-xs text-muted-foreground line-through'>{formatCurrency(Number(price))}</p>
+            )}
           </div>
           <h4 className={`text-xs text-muted-foreground truncate ${showRestaurant ? '' : 'hidden'}`}>{restaurant.name}</h4>
         </div>

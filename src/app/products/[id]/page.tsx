@@ -80,7 +80,9 @@ export default async function ProductDetailsPage({ params }: Props) {
                 <p className='text-xl font-semibold'>{formatCurrency(actualPrice)}</p>
                 <DiscountPercentBadge discountPercentage={product?.discountPercentage || 0} />
               </div>
-              <p className='text-sm text-muted-foreground line-through'>De: {formatCurrency(Number(product?.price))}</p>
+              {product?.price && product?.discountPercentage > 0 && (
+                <p className='text-sm text-muted-foreground line-through'>De: {formatCurrency(Number(product?.price))}</p>
+              )}
             </div>
             <QuantityInput />
           </div>
