@@ -18,6 +18,8 @@ interface ICartSummary {
   discounts: number
   total: number
   totalItems: number
+  deliveryFee: number
+  deliveryTime: number
 }
 
 interface ICartContext {
@@ -37,7 +39,9 @@ export const CartContext = createContext<ICartContext>({
     total: 0,
     totalItems: 0,
     subTotal: 0,
-    discounts: 0
+    discounts: 0,
+    deliveryFee: 0,
+    deliveryTime: 0
   },
   addProduct: () => { },
   removeProduct: () => { },
@@ -98,11 +102,15 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   const cartSummary: ICartSummary = useMemo(() => {
     const subTotal = cart.reduce((acc, product) => acc + Number(product.price) * product.quantity, 0)
     const discounts = cart.reduce((acc, product) => acc + Number(product.price) * product.discountPercentage / 100 * product.quantity, 0)
-    const total = subTotal - discounts
+    const deliveryFee = Number(cart[0]?.restaurant.deliveryFee) || 0
+    const deliveryTime = cart[0]?.restaurant.deliveryTimeMinutes || 0
+
+    const total = subTotal - discounts + deliveryFee
 
     const totalItems = cart.reduce((acc, product) => acc + product.quantity, 0)
+    
 
-    return { total, totalItems, subTotal, discounts }
+    return { total, totalItems, subTotal, discounts, deliveryFee, deliveryTime }
   }, [cart])
 
   return (

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function CartPopUp({ className }: Props) {
-  const { summary } = useContext(CartContext)
+  const { summary, setSheetOpenState } = useContext(CartContext)
 
   const totalItemString = `/ ${summary.totalItems} ite${summary.totalItems > 1 ? 'ns' : 'm'}`
 
@@ -29,7 +29,10 @@ export default function CartPopUp({ className }: Props) {
           </div>
         </div>
         <div className='h-full flex justify-end items-center'>
-          <Button size='lg'>
+          <Button
+            size='lg'
+            onClick={() => setSheetOpenState(true)}
+          >
             Ver Sacola
           </Button>
         </div>
