@@ -1,7 +1,7 @@
 'use client'
 
 import { Prisma } from '@prisma/client'
-import { createContext, useMemo, useReducer } from 'react'
+import { createContext, useMemo, useReducer, useState } from 'react'
 
 export interface CartProduct
   extends Prisma.ProductGetPayload<{
@@ -26,13 +26,15 @@ interface ICartContext {
   addProduct: (product: CartProduct) => void
   removeProduct: (id: string) => void
   updateProduct: (product: CartProduct) => void
+  sheetOpenState: boolean
+  setSheetOpenState: (state: boolean) => void
 }
 
 
 export const CartContext = createContext<ICartContext>({
   products: [],
-  summary: { 
-    total: 0, 
+  summary: {
+    total: 0,
     totalItems: 0,
     subTotal: 0,
     discounts: 0
@@ -40,6 +42,8 @@ export const CartContext = createContext<ICartContext>({
   addProduct: () => { },
   removeProduct: () => { },
   updateProduct: () => { },
+  sheetOpenState: false,
+  setSheetOpenState: () => { }
 })
 CartContext.displayName = 'Cart'
 
@@ -51,6 +55,7 @@ type CartAction =
 
 //Provider
 export default function CartProvider({ children }: { children: React.ReactNode }) {
+  const [sheetOpenState, setSheetOpenState] = useState(false)
   const [cart, updateCart] = useReducer(cartReducer, [])
 
   function cartReducer(state: CartProduct[], action: CartAction): CartProduct[] {
@@ -59,6 +64,9 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         if (!action.product) {
           return state
         }
+
+        setSheetOpenState(true)
+
         const existingProduct = state.find((product) => product.id === action.product?.id)
         if (existingProduct) {
           return state.map((product) => {
@@ -93,7 +101,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
     const total = subTotal - discounts
 
     const totalItems = cart.reduce((acc, product) => acc + product.quantity, 0)
-    
+
     return { total, totalItems, subTotal, discounts }
   }, [cart])
 
@@ -105,6 +113,8 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         addProduct: (product: CartProduct) => updateCart({ type: 'add', product }),
         removeProduct: (productId: string) => updateCart({ type: 'remove', productId }),
         updateProduct: (product: CartProduct) => updateCart({ type: 'update', product }),
+        sheetOpenState,
+        setSheetOpenState
       }}
     >
       {children}
