@@ -1,7 +1,7 @@
 'use client'
 
 import { Prisma } from '@prisma/client'
-import { createContext, useReducer } from 'react'
+import { createContext, useMemo, useReducer } from 'react'
 
 export interface CartProduct
   extends Prisma.ProductGetPayload<{
@@ -13,15 +13,30 @@ export interface CartProduct
 }
 
 // Context
+interface ICartSummary {
+  subTotal: number
+  discounts: number
+  total: number
+  totalItems: number
+}
+
 interface ICartContext {
   products: CartProduct[]
+  summary: ICartSummary
   addProduct: (product: CartProduct) => void
   removeProduct: (id: string) => void
   updateProduct: (product: CartProduct) => void
 }
 
+
 export const CartContext = createContext<ICartContext>({
   products: [],
+  summary: { 
+    total: 0, 
+    totalItems: 0,
+    subTotal: 0,
+    discounts: 0
+  },
   addProduct: () => { },
   removeProduct: () => { },
   updateProduct: () => { },
@@ -72,10 +87,21 @@ export default function CartProvider({ children }: { children: React.ReactNode }
     }
   }
 
+  const cartSummary: ICartSummary = useMemo(() => {
+    const subTotal = cart.reduce((acc, product) => acc + Number(product.price) * product.quantity, 0)
+    const discounts = cart.reduce((acc, product) => acc + Number(product.price) * product.discountPercentage / 100 * product.quantity, 0)
+    const total = subTotal - discounts
+
+    const totalItems = cart.reduce((acc, product) => acc + product.quantity, 0)
+    
+    return { total, totalItems, subTotal, discounts }
+  }, [cart])
+
   return (
     <CartContext.Provider
       value={{
         products: cart,
+        summary: cartSummary,
         addProduct: (product: CartProduct) => updateCart({ type: 'add', product }),
         removeProduct: (productId: string) => updateCart({ type: 'remove', productId }),
         updateProduct: (product: CartProduct) => updateCart({ type: 'update', product }),

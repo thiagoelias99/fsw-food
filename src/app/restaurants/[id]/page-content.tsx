@@ -23,7 +23,7 @@ interface Props {
 
 export default function RestaurantDetailsContent({ restaurant }: Props) {
   return (
-    <main className='flex flex-col'>
+    <main className='flex flex-col mb-20'>
       <section className='relative w-full h-[356px]'>
         <Image
           src={restaurant?.imageUrl || ''}

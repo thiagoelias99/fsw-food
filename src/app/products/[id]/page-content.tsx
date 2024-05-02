@@ -35,7 +35,7 @@ interface Props {
 }
 
 export default function ProductDetailsContent({ product, otherProducts }: Props) {
-  const [quantity, setQuantity] = useState(0)
+  const [quantity, setQuantity] = useState(1)
   const { products, addProduct } = useContext(CartContext)
 
   if (!product) {
