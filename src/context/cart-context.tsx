@@ -41,6 +41,22 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   function cartReducer(state: CartProduct[], action: CartAction): CartProduct[] {
     switch (action.type) {
       case 'add':
+        if (!action.product) {
+          return state
+        }
+        const existingProduct = state.find((product) => product.id === action.product?.id)
+        if (existingProduct) {
+          return state.map((product) => {
+            if (product.id === action.product?.id) {
+              return {
+                ...product,
+                quantity: product.quantity + action.product?.quantity
+              }
+            }
+            return product
+          })
+        }
+
         return [...state, action.product]
       case 'remove':
         return state.filter((product) => product.id !== action.productId)
