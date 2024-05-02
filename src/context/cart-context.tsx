@@ -28,8 +28,12 @@ interface ICartContext {
   addProduct: (product: CartProduct) => void
   removeProduct: (id: string) => void
   updateProduct: (product: CartProduct) => void
+  resetCart: () => void,
   sheetOpenState: boolean
   setSheetOpenState: (state: boolean) => void
+  cartResetDialogState: boolean
+  setCartResetDialogState: (state: boolean) => void
+  productToAdd: CartProduct | null
 }
 
 
@@ -46,8 +50,12 @@ export const CartContext = createContext<ICartContext>({
   addProduct: () => { },
   removeProduct: () => { },
   updateProduct: () => { },
+  resetCart: () => { },
   sheetOpenState: false,
-  setSheetOpenState: () => { }
+  setSheetOpenState: () => { },
+  cartResetDialogState: false,
+  setCartResetDialogState: () => { },
+  productToAdd: null,
 })
 CartContext.displayName = 'Cart'
 
@@ -56,10 +64,13 @@ type CartAction =
   | { type: 'add'; product: CartProduct }
   | { type: 'remove'; productId: string }
   | { type: 'update'; product: CartProduct }
+  | { type: 'reset' }
 
 //Provider
 export default function CartProvider({ children }: { children: React.ReactNode }) {
   const [sheetOpenState, setSheetOpenState] = useState(false)
+  const [cartResetDialogState, setCartResetDialogState] = useState(false)
+  const [productToAdd, setProductToAdd] = useState<CartProduct | null>(null)
   const [cart, updateCart] = useReducer(cartReducer, [])
 
   function cartReducer(state: CartProduct[], action: CartAction): CartProduct[] {
@@ -69,7 +80,14 @@ export default function CartProvider({ children }: { children: React.ReactNode }
           return state
         }
 
+        if (state.length > 0 && state[0].restaurant.id !== action.product.restaurant.id) {
+          setProductToAdd(action.product)
+          setCartResetDialogState(true)
+          return state
+        }
+
         setSheetOpenState(true)
+        setProductToAdd(null)
 
         const existingProduct = state.find((product) => product.id === action.product?.id)
         if (existingProduct) {
@@ -94,6 +112,8 @@ export default function CartProvider({ children }: { children: React.ReactNode }
           }
           return product
         })
+      case 'reset':
+        return []
       default:
         return state
     }
@@ -108,7 +128,6 @@ export default function CartProvider({ children }: { children: React.ReactNode }
     const total = subTotal - discounts + deliveryFee
 
     const totalItems = cart.reduce((acc, product) => acc + product.quantity, 0)
-    
 
     return { total, totalItems, subTotal, discounts, deliveryFee, deliveryTime }
   }, [cart])
@@ -121,8 +140,12 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         addProduct: (product: CartProduct) => updateCart({ type: 'add', product }),
         removeProduct: (productId: string) => updateCart({ type: 'remove', productId }),
         updateProduct: (product: CartProduct) => updateCart({ type: 'update', product }),
+        resetCart: () => updateCart({ type: 'reset' }),
         sheetOpenState,
-        setSheetOpenState
+        setSheetOpenState,
+        cartResetDialogState,
+        setCartResetDialogState,
+        productToAdd
       }}
     >
       {children}
