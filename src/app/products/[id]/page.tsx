@@ -1,6 +1,7 @@
 import prisma from '@/prisma/prisma-client'
 import React from 'react'
 import ProductDetailsContent from './page-content'
+import { Product } from '@prisma/client'
 
 interface Props {
   params: {
@@ -38,6 +39,6 @@ export default async function ProductDetailsPage({ params }: Props) {
   })
 
   return (
-    <ProductDetailsContent product={{ ...product }} otherProducts={otherProducts} />
+    <ProductDetailsContent product={{ ...product } as any} otherProducts={otherProducts} />
   )
 }

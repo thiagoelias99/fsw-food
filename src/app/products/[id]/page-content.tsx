@@ -6,7 +6,7 @@ import DiscountPercentBadge from '@/components/discount-percent-badge'
 import ProductItem from '@/components/product-item'
 import QuantityInput from '@/components/quantity-input'
 import { Button } from '@/components/ui/button'
-import { CartContext } from '@/context/cart-context'
+import { CartContext, CartProduct } from '@/context/cart-context'
 import { formatCurrency } from '@/lib/format-currecy'
 import { Prisma } from '@prisma/client'
 import Image from 'next/image'
@@ -36,7 +36,7 @@ interface Props {
 
 export default function ProductDetailsContent({ product, otherProducts }: Props) {
   const [quantity, setQuantity] = useState(1)
-  const { products, addProduct } = useContext(CartContext)
+  const { addProduct } = useContext(CartContext)
 
   if (!product) {
     return null
@@ -45,7 +45,7 @@ export default function ProductDetailsContent({ product, otherProducts }: Props)
   const actualPrice = Number(product.price) * (1 - Number(product.discountPercentage) / 100)
 
   function addProductToCart() {
-    addProduct({ ...product, quantity })
+    addProduct({ ...product, quantity } as CartProduct)
   }
 
   return (

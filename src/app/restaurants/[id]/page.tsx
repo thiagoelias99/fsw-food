@@ -22,6 +22,6 @@ export default async function RestaurantDetailsPage({ params }: Props) {
   })
 
   return (
-    <RestaurantDetailsContent restaurant={restaurant} />
+    <RestaurantDetailsContent restaurant={restaurant as any} />
   )
 }
