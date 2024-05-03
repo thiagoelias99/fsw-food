@@ -13,7 +13,7 @@ export interface CartProduct
 }
 
 // Context
-interface ICartSummary {
+export interface ICartSummary {
   subTotal: number
   discounts: number
   total: number

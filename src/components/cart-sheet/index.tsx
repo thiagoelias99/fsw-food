@@ -7,9 +7,9 @@ import {
   SheetHeader,
 } from '@/components/ui/sheet'
 import { CartContext } from '@/context/cart-context'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { Button } from '../ui/button'
-import { X } from 'lucide-react'
+import { Check, Loader2, X } from 'lucide-react'
 import CartItem from './cart-item'
 import { Card, CardContent } from '../ui/card'
 import { formatCurrency } from '@/lib/format-currecy'
@@ -21,8 +21,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
+import { useSession } from 'next-auth/react'
+import { createOrder } from '@/actions/create-order'
+import { DialogClose } from '@radix-ui/react-dialog'
 
 export default function CartSheet() {
   const {
@@ -36,6 +38,29 @@ export default function CartSheet() {
     addProduct,
     productToAdd
   } = useContext(CartContext)
+
+  const { data } = useSession()
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleCreateOrder() {
+    if (!data?.user) return
+
+    try {
+      setIsLoading(true)
+      await createOrder(summary, products[0].restaurantId, products, data.user.id)
+      // set a timeout of 1.5 seconds to simulate the order creation
+      // await new Promise(resolve => setTimeout(resolve, 1500))
+
+      resetCart()
+      setSheetOpenState(false)
+      setShowOrderSuccess(true)
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <>
@@ -90,7 +115,11 @@ export default function CartSheet() {
               </Card>
               <Button
                 size='lg'
-                className='w-full'>
+                className='w-full min-h-10'
+                onClick={() => handleCreateOrder()}
+                disabled={isLoading}
+              >
+                {isLoading && <Loader2 className='animate-spin mr-2' size={24} />}
                 Finalizar Pedido
               </Button>
             </>
@@ -125,6 +154,24 @@ export default function CartSheet() {
               Confirmar
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showOrderSuccess} onOpenChange={setShowOrderSuccess}>
+        <DialogContent className='w-[60%] rounded-lg flex flex-col justify-start items-center'>
+          <div className='bg-primary rounded-full w-16 h-16 flex justify-center items-center'>
+            <Check size={48} className='text-primary-foreground' />
+          </div>
+          <p className='font-semibold'>Pedido Efetuado!</p>
+          <p className='text-sm text-muted-foreground text-center'>Seu pedido foi efetuado com sucesso.</p>
+          <DialogClose asChild>
+            <Button
+              variant='outline'
+              className='border-muted w-full'
+            >
+              Confirmar
+            </Button>
+          </DialogClose>
         </DialogContent>
       </Dialog>
     </>

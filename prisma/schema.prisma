@@ -15,6 +15,7 @@ model Restaurant {
   deliveryTimeMinutes Int
   categories          Category[]
   products            Product[]
+  order               Order[]
 }
 
 model Category {
@@ -26,16 +27,17 @@ model Category {
 }
 
 model Product {
-  id                 String     @id @default(uuid())
+  id                 String         @id @default(uuid())
   name               String
   description        String
   imageUrl           String
-  price              Decimal    @db.Decimal(10, 2)
-  discountPercentage Int        @default(0)
+  price              Decimal        @db.Decimal(10, 2)
+  discountPercentage Int            @default(0)
   restaurantId       String
-  restaurant         Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurant         Restaurant     @relation(fields: [restaurantId], references: [id])
   categoryId         String
-  category           Category   @relation(fields: [categoryId], references: [id])
+  category           Category       @relation(fields: [categoryId], references: [id])
+  orderProduct       OrderProduct[]
 }
 
 model Account {
@@ -76,6 +78,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  order         Order[]
 
   @@map("users")
 }
@@ -87,4 +90,41 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+enum OrderStatus {
+  PENDING
+  DELIVERING
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  userId       String      @map("user_id")
+  restaurantId String      @map("restaurant_id")
+  status       OrderStatus
+  deliveryFee  Decimal     @db.Decimal(10, 2)
+
+  products   OrderProduct[]
+  user       User           @relation(fields: [userId], references: [id])
+  restaurant Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@map("orders")
+}
+
+model OrderProduct {
+  orderId            String  @map("order_id")
+  productId          String  @map("product_id")
+  quantity           Int
+  price              Decimal @db.Decimal(10, 2)
+  discountPercentage Int
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@id([orderId, productId])
+  @@map("order_products")
 }
