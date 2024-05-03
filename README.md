@@ -1,3 +1,6 @@
+### Deploy
+https://fsw-food-nine.vercel.app/
+
 ### Pendências
 - Configurar o back button para voltar para do produto para o restaurante e do restaurante para a tela inicial
 - Tela de pedidos
